@@ -39,7 +39,7 @@ const API_URL = "https://it25u6dfgh.execute-api.us-east-1.amazonaws.com/default/
       setResponseString(resp);
 
       let signedUrl = responseString.signedUrl;
-      let fileKey = resp.file;
+      let fileKey = responseString.file;
 
       resp = await fetch(signedUrl, {
         method: "PUT",
