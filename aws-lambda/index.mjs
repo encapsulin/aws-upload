@@ -10,7 +10,7 @@
 // };
 
 // Example using AWS SDK v3
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3Client = new S3Client({ region: "us-east-1" });
@@ -28,25 +28,39 @@ export const handler = async (event) => {
         dir = event.payload.dir;
     }
 
-    // default: today in yyyy-mm-ddHH:MM:SS
-    let file = new Date().toISOString().slice(0, 19).replace(/[^0-9\-]/g, "-")
+    let file = '';
     if (event?.queryStringParameters?.file) {
-        file += "-" + event.queryStringParameters.file;
+        file = event.queryStringParameters.file;
     } else if (event?.payload?.file) {
-        file += "-" + event.payload.file;
+        file = event.payload.file;
+    }
+    console.log("file:"+file)
+
+    let cmd = "put"
+
+    if(event?.queryStringParameters?.cmd && event?.queryStringParameters?.cmd ==="get") {
+        cmd="get"
     }
 
-    // const formattedTimestamp = new Date().toISOString().replace(/[\-:Z]/g, '');
-    const fileKey = `${file}`;
-
-    const command = new PutObjectCommand({
+    let command = new GetObjectCommand({
         Bucket: bucketName,
-        Key: fileKey,
+        Key: file,
         ContentType: "application/octet-stream",
     });
 
+    if(cmd === "put") {
+        let filePrefix = new Date().toISOString().slice(0, 19).replace(/[^0-9\-]/g, "-")
+        file = filePrefix + "" + file
+
+        command = new PutObjectCommand({
+            Bucket: bucketName,
+            Key: file,
+            ContentType: "application/octet-stream",
+        });
+    }
+
     const signedUrl = await getSignedUrl(s3Client, command, {
-        expiresIn: 3600 // URL valid for 5 minutes
+        expiresIn: 3600 
     });
 
     if (event.requestContext?.http?.method === "OPTIONS") {
@@ -66,6 +80,6 @@ export const handler = async (event) => {
         headers: {
                 "Access-Control-Allow-Origin": "http://localhost:3000",
           },
-        body: JSON.stringify({ uploadUrl: signedUrl, fileKey }),
+        body: JSON.stringify({ signedUrl: signedUrl, file }),
     };
 };
