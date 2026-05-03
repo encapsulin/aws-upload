@@ -74,7 +74,7 @@ export const handler = async (event) => {
           body: "",
         };
     }
-
+ 
     return {
         statusCode: 200,
         headers: {
