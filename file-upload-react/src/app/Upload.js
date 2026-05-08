@@ -75,8 +75,8 @@ const API_URL = "https://it25u6dfgh.execute-api.us-east-1.amazonaws.com/default/
       
       
       setTimeout(() => {
-  downloadRef.current?.click();
-}, 1000);
+        downloadRef.current?.click();
+      }, 1000);
 
     } catch (err) {
       console.error(err);
