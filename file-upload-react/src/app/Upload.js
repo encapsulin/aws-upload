@@ -22,7 +22,6 @@ const API_URL = "https://it25u6dfgh.execute-api.us-east-1.amazonaws.com/default/
 
   useEffect(() => {
     console.log("fileName changed:", fileName);
-    setStatus(fileName);
   }, [fileName]);
 
   const handleUpload = async () => {
@@ -40,7 +39,7 @@ const API_URL = "https://it25u6dfgh.execute-api.us-east-1.amazonaws.com/default/
 
       let signedUrl = resp.signedUrl;
       setFileName(resp.file);
-               console.log("fileName1:", fileName);
+      console.log("fileName1:", fileName);
 
       resp = await fetch(signedUrl, {
         method: "PUT",
@@ -52,13 +51,16 @@ const API_URL = "https://it25u6dfgh.execute-api.us-east-1.amazonaws.com/default/
 
       if (!resp.ok) throw new Error("Upload failed");
 
-   
+      setStatus(fileName);
+
 
      } catch (err) {
       console.error(err);
-      setStatus("Upload error");
+      setStatus("Error");
     }
+
       setLoading(false);
+      
    
   };
 
