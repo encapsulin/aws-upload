@@ -21,12 +21,12 @@ export const handler = async (event) => {
     console.log(bucketName);
 
     // default: today in yyyy-mm-dd
-    let dir = new Date().toISOString().slice(0, 10);
-    if (event?.queryStringParameters?.dir) {
-        dir = event.queryStringParameters.dir;
-    } else if (event?.payload?.dir) {
-        dir = event.payload.dir;
-    }
+    // let dir = new Date().toISOString().slice(0, 10);
+    // if (event?.queryStringParameters?.dir) {
+    //     dir = event.queryStringParameters.dir;
+    // } else if (event?.payload?.dir) {
+    //     dir = event.payload.dir;
+    // }
 
     let file = '';
     if (event?.queryStringParameters?.file) {
@@ -49,7 +49,8 @@ export const handler = async (event) => {
     });
 
     if(cmd === "put") {
-        let filePrefix = new Date().toISOString().slice(0, 19).replace(/[^0-9\-]/g, "-")
+        const twoHoursLater = new Date(Date.now() + 3 * 60 * 60 * 1000);
+        let filePrefix = twoHoursLater.toISOString().slice(10, 19).replace(/[^0-9\-]/g, "");
         file = filePrefix + "" + file
 
         command = new PutObjectCommand({
@@ -66,20 +67,20 @@ export const handler = async (event) => {
     if (event.requestContext?.http?.method === "OPTIONS") {
         return {
           statusCode: 200,
-          headers: {
-            "Access-Control-Allow-Origin": "http://localhost:3000",
-            "Access-Control-Allow-Methods": "GET,OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
-          },
+        //   headers: {
+        //     "Access-Control-Allow-Origin": "*",
+        //     "Access-Control-Allow-Methods": "GET,OPTIONS,PUT",
+        //     "Access-Control-Allow-Headers": "Content-Type",
+        //   },
           body: "",
         };
     }
- 
+
     return {
         statusCode: 200,
-        headers: {
-                "Access-Control-Allow-Origin": "http://localhost:3000",
-          },
+        // headers: {
+        //         "Access-Control-Allow-Origin": "*",
+        //   },
         body: JSON.stringify({ signedUrl: signedUrl, file }),
     };
 };

@@ -6,5 +6,6 @@
 // const { uploadUrl, fileKey } = JSON.parse(responseString);
 //  console.log(uploadUrl, fileKey );
 
-let filePrefix = new Date().toISOString().slice(10, 19).replace(/[^0-9\-]/g, "")
+const twoHoursLater = new Date(Date.now() + 3 * 60 * 60 * 1000);
+let filePrefix = twoHoursLater.toISOString().slice(10, 19).replace(/[^0-9\-]/g, "")
 console.log(filePrefix)
