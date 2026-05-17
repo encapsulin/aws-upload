@@ -12,21 +12,22 @@
 // Example using AWS SDK v3
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getJustFileName} from "./utils.mjs";
 
 const s3Client = new S3Client({ region: "us-east-1" });
-const bucketName = process.env.S3_BUCKET_NAME;;//"fn-upload";
+const bucketName = process.env.S3_BUCKET_NAME;
 
 export const handler = async (event) => {
     console.log('Received event:', event);
     console.log(bucketName);
 
     // default: today in yyyy-mm-dd
-    // let dir = new Date().toISOString().slice(0, 10);
-    // if (event?.queryStringParameters?.dir) {
-    //     dir = event.queryStringParameters.dir;
-    // } else if (event?.payload?.dir) {
-    //     dir = event.payload.dir;
-    // }
+    let dir = new Date().toISOString().slice(0, 10);
+    if (event?.queryStringParameters?.dir) {
+        dir = event.queryStringParameters.dir;
+    } else if (event?.payload?.dir) {
+        dir = event.payload.dir;
+    }
 
     let file = '';
     if (event?.queryStringParameters?.file) {
@@ -40,24 +41,31 @@ export const handler = async (event) => {
 
     if(event?.queryStringParameters?.cmd && event?.queryStringParameters?.cmd ==="get") {
         cmd="get"
+        file = dir + '/' + file;
     }
+    console.log("file:"+file)
 
     let command = new GetObjectCommand({
         Bucket: bucketName,
         Key: file,
         ContentType: "application/octet-stream",
     });
+    console.log("GetObjectCommand:"+GetObjectCommand)
 
     if(cmd === "put") {
         const twoHoursLater = new Date(Date.now() + 3 * 60 * 60 * 1000);
-        let filePrefix = twoHoursLater.toISOString().slice(10, 19).replace(/[^0-9\-]/g, "");
-        file = filePrefix + "" + file
+        let timePrefix = twoHoursLater.toISOString().slice(10, 19).replace(/[^0-9\-]/g, "");
+        file = timePrefix + "" + file;
+        file = dir + '/' + file;
 
         command = new PutObjectCommand({
             Bucket: bucketName,
             Key: file,
             ContentType: "application/octet-stream",
         });
+        console.log("PutObjectCommand:"+PutObjectCommand)
+
+        file = getJustFileName(file);
     }
 
     const signedUrl = await getSignedUrl(s3Client, command, {
@@ -81,6 +89,6 @@ export const handler = async (event) => {
         // headers: {
         //         "Access-Control-Allow-Origin": "*",
         //   },
-        body: JSON.stringify({ signedUrl: signedUrl, file }),
+        body: JSON.stringify({ signedUrl, file }),
     };
 };
