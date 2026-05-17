@@ -1,5 +1,5 @@
 export function getExtension(filename) {
-  return "."+filename.split('.').pop();
+  return filename.split('.').pop();
 }
 
 // console.log(getExtension('photo.jpg')); // jpg

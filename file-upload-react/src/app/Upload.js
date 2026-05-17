@@ -67,7 +67,7 @@ export default function Upload() {
 
       // get signed URL
       //let resp = await get(API_URL);
-      let resp = await get(API_URL+'?cmd=upload&file=' + getExtension(file.name));
+      let resp = await get(API_URL+'?cmd=put&file=' + getExtension(file.name));
 
       setResponseString(resp);
 
@@ -134,11 +134,11 @@ export default function Upload() {
         {loading && (
           <div>
             <progress value={progress} max="100" />
-            <p>{progress}%</p>
+            {/* <p>{progress}%</p> */}
           </div>
         )}
 
-        {loading && <AppLoading />}
+        {loading && <AppLoading text={progress+"%"} />}
       </div>
 
       <div
@@ -172,12 +172,12 @@ export default function Upload() {
             style={{ backgroundColor: "#FFF" }}
             ref={downloadRef}
           >
-            Download {responseString.file}
+            {responseString.file}
           </a>
         )}
       </div>
 
-      <div style={{color:"#111"}}>1.2.2</div>
+      <div style={{color:"#111"}}>1.3.0</div>
     </div>
   );
 }
