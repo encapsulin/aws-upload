@@ -183,7 +183,7 @@ export default function Upload() {
         )}
       </div>
 
-      <div style={{ color: "#111" }}>1.3.0</div>
+      <div style={{ color: "#222" }}>1.3.1</div>
     </div>
   );
 }
