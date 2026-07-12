@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
 import { get } from "./get";
-import { getExtension } from "./fn/getExtension";
 import { AppLoading } from "./loading/AppLoading";
 
 export default function Upload() {
@@ -66,8 +65,7 @@ export default function Upload() {
       setStatus("");
 
       // get signed URL
-      //let resp = await get(API_URL);
-      let resp = await get(API_URL+'?cmd=put&file=' + getExtension(file.name));
+      let resp = await get(API_URL);
 
       setResponseString(resp);
 
@@ -78,10 +76,10 @@ export default function Upload() {
       // upload with progress
       await uploadFileWithProgress(signedUrl, file);
 
-      setStatus("Complete");
+      setStatus("Upload complete");
     } catch (err) {
       console.error(err);
-      setStatus(":( "+err);
+      setStatus("Error");
     } finally {
       setLoading(false);
     }
@@ -134,11 +132,11 @@ export default function Upload() {
         {loading && (
           <div>
             <progress value={progress} max="100" />
-            {/* <p>{progress}%</p> */}
+            <p>{progress}%</p>
           </div>
         )}
 
-        {loading && <AppLoading text={progress+"%"} />}
+        {loading && <AppLoading />}
       </div>
 
       <div
@@ -172,12 +170,10 @@ export default function Upload() {
             style={{ backgroundColor: "#FFF" }}
             ref={downloadRef}
           >
-            {responseString.file}
+            Download {responseString.file}
           </a>
         )}
       </div>
-
-      <div style={{color:"#111"}}>1.3.0</div>
     </div>
   );
 }
