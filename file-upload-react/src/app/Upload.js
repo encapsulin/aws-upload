@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { get } from "./get";
 import { getExtension } from "./fn/getExtension";
 import { AppLoading } from "./loading/AppLoading";
+// import { useSearchParams } from "react-router-dom";
 
 export default function Upload() {
   const [file, setFile] = useState(null);
@@ -22,6 +23,10 @@ export default function Upload() {
   const API_URL =
     "https://it25u6dfgh.execute-api.us-east-1.amazonaws.com/default/fn-upload";
 
+  // const [searchParams] = useSearchParams();
+  // console.log("searchParams:", searchParams);
+  // console.log("searchParams.file:", searchParams.get("file"));
+
   const uploadFileWithProgress = (signedUrl, file) => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -33,9 +38,7 @@ export default function Upload() {
       // upload progress
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
-          const percent = Math.round(
-            (event.loaded / event.total) * 100
-          );
+          const percent = Math.round((event.loaded / event.total) * 100);
 
           setProgress(percent);
         }
@@ -67,7 +70,9 @@ export default function Upload() {
 
       // get signed URL
       //let resp = await get(API_URL);
-      let resp = await get(API_URL+'?cmd=put&file=' + getExtension(file.name));
+      let resp = await get(
+        API_URL + "?cmd=put&file=" + getExtension(file.name),
+      );
 
       setResponseString(resp);
 
@@ -81,7 +86,7 @@ export default function Upload() {
       setStatus("Complete");
     } catch (err) {
       console.error(err);
-      setStatus(":( "+err);
+      setStatus(":( " + err);
     } finally {
       setLoading(false);
     }
@@ -91,9 +96,7 @@ export default function Upload() {
     if (!fileName) return;
 
     try {
-      let resp = await get(
-        API_URL + "?file=" + fileName + "&cmd=get"
-      );
+      let resp = await get(API_URL + "?file=" + fileName + "&cmd=get");
 
       setResponseString(resp);
       setStatusDownload(true);
@@ -107,6 +110,16 @@ export default function Upload() {
     }
   };
 
+  useEffect(() => {
+    const fn = new URLSearchParams(window.location.search).get("fn");
+    console.log("fn:", fn);
+    if (fn) {
+      setFileName(fn);
+      //TODO: if fn is not empty, call handleDownload
+      //handleDownload();
+    }
+  }, []);
+
   return (
     <div>
       <div
@@ -119,14 +132,9 @@ export default function Upload() {
       >
         <h3>Upload</h3>
 
-        <input
-          type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
 
-        <button onClick={handleUpload}>
-          Upload
-        </button>
+        <button onClick={handleUpload}>Upload</button>
 
         <p>{status}</p>
 
@@ -138,7 +146,7 @@ export default function Upload() {
           </div>
         )}
 
-        {loading && <AppLoading text={progress+"%"} />}
+        {loading && <AppLoading text={progress + "%"} />}
       </div>
 
       <div
@@ -157,9 +165,7 @@ export default function Upload() {
           onChange={(e) => setFileName(e.target.value)}
         />
 
-        <button onClick={handleDownload}>
-          Download
-        </button>
+        <button onClick={handleDownload}>Download</button>
 
         <br />
         <br />
@@ -177,7 +183,7 @@ export default function Upload() {
         )}
       </div>
 
-      <div style={{color:"#111"}}>1.3.0</div>
+      <div style={{ color: "#111" }}>1.3.0</div>
     </div>
   );
 }
